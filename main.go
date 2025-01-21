@@ -1,14 +1,17 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
+	"net"
 	"os"
 	"os/signal"
 	"strconv"
 	"strings"
 	"syscall"
 
+	"github.com/armon/go-socks5"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -25,6 +28,8 @@ func main() {
 	hostLinkAddr := flag.String("mac", "00:1A:70:54:A6:93", "MAC address to use")
 	hostProtoAddr := flag.String("ip", "192.168.255.10/24", "IP address to use (with prefix)")
 	gateProtoAddr := flag.String("gateway", "192.168.255.1", "gateway IP address")
+
+	socks := flag.String("socks5", "none", "listen address for socks5 proxy")
 
 	flag.Parse()
 
@@ -60,6 +65,23 @@ func main() {
 		}
 		remoteAddr := parts[2] + ":" + parts[3]
 		go server.Proxy(network, localPort, remoteAddr)
+	}
+
+	if socks != nil && *socks != "none" {
+		sockserv, err := socks5.New(&socks5.Config{
+			Dial: func(ctx context.Context, network, addr string) (net.Conn, error) {
+				return server.Dial(network, addr)
+			},
+		})
+		if err != nil {
+			panic(err)
+		}
+		go func() {
+			err := sockserv.ListenAndServe("tcp", *socks)
+			if err != nil {
+				panic(err)
+			}
+		}()
 	}
 
 	sig := make(chan os.Signal, 1)
