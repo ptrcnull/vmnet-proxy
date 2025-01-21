@@ -45,6 +45,7 @@ func (v *VMNet) Read(p []byte) (n int, err error) {
 		}
 
 		copy(p, C.GoBytes(cBytes, C.int(cBytesLen)))
+		C.free(cBytes)
 		return int(cBytesLen), nil
 	}
 }

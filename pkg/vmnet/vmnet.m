@@ -98,6 +98,7 @@ void _vmnet_read(interface_ref interface, uint64_t max_packet_size,
   vmnet_return_t status = vmnet_read(interface, &packets, &packets_count);
 
   if (status != VMNET_SUCCESS || packets_count == 0) {
+    free(packets.vm_pkt_iov->iov_base);
     return;
   }
 
