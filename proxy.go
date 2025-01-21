@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"strings"
 
 	"github.com/rs/zerolog/log"
 )
@@ -37,9 +36,8 @@ func (s *Server) Proxy(network string, localPort int, remoteAddr string) {
 func Copy(dst io.ReadWriteCloser, src io.ReadWriteCloser) {
 	_, err := io.Copy(dst, src)
 	// this is scuffed but meh
-	if err == nil || err == io.EOF || strings.HasSuffix(err.Error(), "use of closed network connection") {
-		dst.Close()
-	} else {
-		panic(err)
+	if err != nil {
+		log.Error().Msg(err.Error())
 	}
+	dst.Close()
 }
