@@ -203,17 +203,16 @@ func (s *Server) WritePackets(pkts stack.PacketBufferList) (int, tcpip.Error) {
 }
 
 func (r *Server) Loop() {
+	bytes := make([]byte, r.MaxPacketSize)
+
 	for {
-		bytes := make([]byte, r.MaxPacketSize)
 		bytesLen, err := r.Read(bytes)
 		if err != nil {
 			log.Error().Msgf("error while reading from vmnet: %s", err.Error())
 			continue
 		}
 
-		bytes = bytes[:bytesLen]
-
-		r.HandlePacket(bytes)
+		r.HandlePacket(bytes[:bytesLen])
 	}
 }
 
