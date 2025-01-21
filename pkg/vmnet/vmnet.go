@@ -1,7 +1,7 @@
 package vmnet
 
 // #cgo CFLAGS: -x objective-c
-// #cgo LDFLAGS: -lobjc -framework vmnet
+// #cgo LDFLAGS: -framework vmnet
 // #include "vmnet.h"
 import "C"
 import (
